@@ -360,7 +360,15 @@ function showNewRequestAfterShare(){
  const b=$("newRequest");
  if(b&&currentRequest){b.style.display="flex";}
 }
-window.onAndroidShareReturned=showNewRequestAfterShare;
+window.onAndroidShareReturned=()=>{
+ if(!currentRequest)return;
+ if(confirm("¿Iniciar una nueva solicitud? Se limpiarán los datos y el comprobante actual. El número correlativo se conservará.")){
+  resetNomination();
+  alert("Formulario limpio. Ya puedes iniciar una nueva nominación.");
+ }else{
+  showNewRequestAfterShare();
+ }
+};
 
 function resetNomination(){
  const form=$("nomForm");
@@ -409,18 +417,17 @@ $("share").onclick=async()=>{
   const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";
   if(window.AndroidShare&&typeof window.AndroidShare.sharePng==="function"){
    const data=await makeImage();
-   showNewRequestAfterShare();
    window.AndroidShare.sharePng(data,filename);
    return;
   }
   const b=await imageBlob(),f=new File([b],filename,{type:"image/png"});
   if(navigator.canShare&&navigator.canShare({files:[f]})){
    await navigator.share({files:[f],title:"Solicitud de nominación",text:"Comprobante "+currentRequest.requestId});
-   showNewRequestAfterShare();
+   window.onAndroidShareReturned();
   }else{
    await $("download").click();
    alert("Tu navegador no permite compartir archivos directamente. Se descargó la imagen para adjuntarla en WhatsApp.");
-   showNewRequestAfterShare();
+   window.onAndroidShareReturned();
   }
  }catch(err){if(err.name!=="AbortError")alert("No se pudo compartir: "+err.message)}
 };
