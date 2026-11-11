@@ -356,31 +356,78 @@ async function makeImage(){
 }
 async function imageBlob(){const data=await makeImage();if(!data)throw new Error("Primero genera una solicitud.");return await (await fetch(data)).blob()}
 $("download").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.savePng==="function"){const data=await makeImage();window.AndroidShare.savePng(data,filename);return;}const b=await imageBlob(),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}catch(err){alert(err.message)}};
-function showNewRequestAfterShare(){const b=$("newRequest");if(b&&currentRequest)b.style.display="block";}
+function showNewRequestAfterShare(){
+ const b=$("newRequest");
+ if(b&&currentRequest){b.style.display="flex";b.scrollIntoView({behavior:"smooth",block:"nearest"});}
+}
 window.onAndroidShareReturned=showNewRequestAfterShare;
-$("newRequest").onclick=()=>{if(!currentRequest)return;if(confirm("¿Ya compartiste o guardaste el comprobante? Se limpiarán los datos para iniciar una nueva solicitud. El número correlativo se conservará."))$("reset").click();};
-$("share").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.sharePng==="function"){const data=await makeImage();window.AndroidShare.sharePng(data,filename);return;}const b=await imageBlob(),f=new File([b],filename,{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Solicitud de nominación",text:"Comprobante "+currentRequest.requestId});showNewRequestAfterShare();}else{await $("download").click();alert("Tu navegador no permite compartir archivos directamente. Se descargó la imagen para adjuntarla en WhatsApp.")}}catch(err){if(err.name!=="AbortError")alert("No se pudo compartir: "+err.message)}};
-$("reset").addEventListener("click",()=>{
+
+function resetNomination(){
  const form=$("nomForm");
- $("newRequest").style.display="none";
+ // Desvincular primero el comprobante actual para impedir que siga visible o reutilizable.
+ currentRequest=null;
+ // Reiniciar valores nativos y quitar también estados persistidos como defaultChecked.
  form.reset();
- // Explicit reset keeps Android WebView and desktop browsers consistent.
+ $("cantidad").selectedIndex=0;
+ ["solicitante","frontera","planta","destino"].forEach(id=>{
+  const el=$(id);
+  if(el){el.selectedIndex=0;Array.from(el.options).forEach((o,i)=>{o.selected=i===0;});}
+ });
+ form.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(el=>{
+  el.checked=false;el.defaultChecked=false;
+ });
+ form.querySelectorAll('input:not([type="radio"]):not([type="checkbox"])').forEach(el=>{
+  if(el.id!=="fecha"){el.value="";el.defaultValue="";}
+ });
+ // El selector de cantidad vuelve a un tracto y se reconstruyen placas vacías.
  $("cantidad").value="1";
- ["solicitante","frontera","planta","destino"].forEach(id=>{const el=$(id);if(el)el.selectedIndex=0;});
- form.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(el=>{el.checked=false;});
- form.querySelectorAll('input:not([type="radio"]):not([type="checkbox"])').forEach(el=>{if(el.id!=="fecha")el.value="";});
- $("fecha").value=nowText();
  plateOptions();
  showPlateWarning(false);
+ $("fecha").value=nowText();
+ // Borrar también los datos renderizados del comprobante anterior.
+ $("rbody").replaceChildren();
+ $("rdate").textContent="";
+ $("rnumber").textContent="";
  $("preview").style.display="none";
  $("shareActions").style.display="none";
- currentRequest=null;
+ $("newRequest").style.display="none";
  $("navShare").disabled=true;
  $("navShare").style.opacity=".45";
  $("navForm").classList.add("active");
  $("navReceipt").classList.remove("active");
  $("navShare").classList.remove("active");
- window.scrollTo({top:0,behavior:"smooth"});
+ // Evitar que el WebView conserve el foco o la posición del comprobante anterior.
+ form.querySelectorAll("select").forEach(el=>el.blur());
+ window.scrollTo({top:0,behavior:"instant"});
+}
+$("newRequest").addEventListener("click",()=>{
+ if(!currentRequest)return;
+ if(confirm("¿Confirmas iniciar una nueva solicitud? Se borrarán todos los datos y el comprobante actual. El número correlativo y el historial se conservarán.")){
+  resetNomination();
+  alert("Formulario limpio. Ya puedes iniciar una nueva nominación.");
+ }
+});
+$("share").onclick=async()=>{
+ try{
+  const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";
+  if(window.AndroidShare&&typeof window.AndroidShare.sharePng==="function"){
+   const data=await makeImage();
+   window.AndroidShare.sharePng(data,filename);
+   return;
+  }
+  const b=await imageBlob(),f=new File([b],filename,{type:"image/png"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){
+   await navigator.share({files:[f],title:"Solicitud de nominación",text:"Comprobante "+currentRequest.requestId});
+   showNewRequestAfterShare();
+  }else{
+   await $("download").click();
+   alert("Tu navegador no permite compartir archivos directamente. Se descargó la imagen para adjuntarla en WhatsApp.");
+   showNewRequestAfterShare();
+  }
+ }catch(err){if(err.name!=="AbortError")alert("No se pudo compartir: "+err.message)}
+};
+$("reset").addEventListener("click",()=>{
+ if(confirm("¿Limpiar todos los datos del formulario? El número correlativo y el historial se conservarán."))resetNomination();
 });
 $("navForm").onclick=()=>{document.querySelector(".hero").scrollIntoView({behavior:"smooth"});$("navForm").classList.add("active");$("navReceipt").classList.remove("active")};
 $("navReceipt").onclick=()=>{if(currentRequest){$("preview").scrollIntoView({behavior:"smooth"});$("navReceipt").classList.add("active");$("navForm").classList.remove("active")}else{alert("Primero genera una solicitud para ver el comprobante.")}};
