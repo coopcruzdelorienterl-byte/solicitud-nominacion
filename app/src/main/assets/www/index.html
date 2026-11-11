@@ -355,7 +355,27 @@ async function makeImage(){
 async function imageBlob(){const data=await makeImage();if(!data)throw new Error("Primero genera una solicitud.");return await (await fetch(data)).blob()}
 $("download").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.savePng==="function"){const data=await makeImage();window.AndroidShare.savePng(data,filename);return;}const b=await imageBlob(),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}catch(err){alert(err.message)}};
 $("share").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.sharePng==="function"){const data=await makeImage();window.AndroidShare.sharePng(data,filename);return;}const b=await imageBlob(),f=new File([b],filename,{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Solicitud de nominación",text:"Comprobante "+currentRequest.requestId});}else{await $("download").click();alert("Tu navegador no permite compartir archivos directamente. Se descargó la imagen para adjuntarla en WhatsApp.")}}catch(err){if(err.name!=="AbortError")alert("No se pudo compartir: "+err.message)}};
-$("reset").onclick=()=>{$("nomForm").reset();$("fecha").value=nowText();plateOptions();$("preview").style.display="none";$("shareActions").style.display="none";currentRequest=null;$("navShare").disabled=true;$("navShare").style.opacity=".45";$("navForm").classList.add("active");$("navReceipt").classList.remove("active");window.scrollTo({top:0,behavior:"smooth"})};
+$("reset").addEventListener("click",()=>{
+ const form=$("nomForm");
+ form.reset();
+ // Explicit reset keeps Android WebView and desktop browsers consistent.
+ $("cantidad").value="1";
+ ["solicitante","frontera","planta","destino"].forEach(id=>{const el=$(id);if(el)el.selectedIndex=0;});
+ form.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(el=>{el.checked=false;});
+ form.querySelectorAll('input:not([type="radio"]):not([type="checkbox"])').forEach(el=>{if(el.id!=="fecha")el.value="";});
+ $("fecha").value=nowText();
+ plateOptions();
+ showPlateWarning(false);
+ $("preview").style.display="none";
+ $("shareActions").style.display="none";
+ currentRequest=null;
+ $("navShare").disabled=true;
+ $("navShare").style.opacity=".45";
+ $("navForm").classList.add("active");
+ $("navReceipt").classList.remove("active");
+ $("navShare").classList.remove("active");
+ window.scrollTo({top:0,behavior:"smooth"});
+});
 $("navForm").onclick=()=>{document.querySelector(".hero").scrollIntoView({behavior:"smooth"});$("navForm").classList.add("active");$("navReceipt").classList.remove("active")};
 $("navReceipt").onclick=()=>{if(currentRequest){$("preview").scrollIntoView({behavior:"smooth"});$("navReceipt").classList.add("active");$("navForm").classList.remove("active")}else{alert("Primero genera una solicitud para ver el comprobante.")}};
 $("navShare").onclick=()=>{if(currentRequest)$("share").click();else alert("Primero genera una solicitud para compartir.")};
