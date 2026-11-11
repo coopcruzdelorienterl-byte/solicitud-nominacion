@@ -358,7 +358,7 @@ async function imageBlob(){const data=await makeImage();if(!data)throw new Error
 $("download").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.savePng==="function"){const data=await makeImage();window.AndroidShare.savePng(data,filename);return;}const b=await imageBlob(),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}catch(err){alert(err.message)}};
 function showNewRequestAfterShare(){
  const b=$("newRequest");
- if(b&&currentRequest){b.style.display="flex";b.scrollIntoView({behavior:"smooth",block:"nearest"});}
+ if(b&&currentRequest){b.style.display="flex";}
 }
 window.onAndroidShareReturned=showNewRequestAfterShare;
 
@@ -402,16 +402,14 @@ function resetNomination(){
 }
 $("newRequest").addEventListener("click",()=>{
  if(!currentRequest)return;
- if(confirm("¿Confirmas iniciar una nueva solicitud? Se borrarán todos los datos y el comprobante actual. El número correlativo y el historial se conservarán.")){
-  resetNomination();
-  alert("Formulario limpio. Ya puedes iniciar una nueva nominación.");
- }
+ resetNomination();
 });
 $("share").onclick=async()=>{
  try{
   const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";
   if(window.AndroidShare&&typeof window.AndroidShare.sharePng==="function"){
    const data=await makeImage();
+   showNewRequestAfterShare();
    window.AndroidShare.sharePng(data,filename);
    return;
   }
