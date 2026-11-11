@@ -1,0 +1,39 @@
+SOLICITUD DE NOMINACIÓN - COOPERATIVA CRUZ DEL ORIENTE
+
+CONTENIDO
+- index.html: aplicación web responsive.
+- logo-cooperativa.jpg: sello institucional original.
+- manifest.webmanifest y sw.js: soporte PWA/offline.
+
+FUNCIONES
+- Lista actualizada de 14 solicitantes, con buscador.
+- Selección de 1 a 4 tractos mediante botones; se muestran exactamente esa cantidad de menús de placas.
+- Lista oficial de 31 placas y bloqueo de duplicados.
+- Producto GASOLINA/DIESEL, fecha y hora automática (zona America/La_Paz), fronteras, plantas, banderas y FCA/DAP.
+- Comprobante con identificador, exportación PNG y compartir mediante el menú nativo del teléfono (si admite compartir archivos) o WhatsApp con texto.
+- Historial persistente en el almacenamiento local del navegador.
+
+CÓMO PROBAR
+1. Extrae el ZIP.
+2. Abre index.html en un navegador moderno para probar el formulario y generar comprobantes.
+3. Para instalar como aplicación (PWA) y habilitar modo sin conexión, publica la carpeta completa en un hosting con HTTPS. Luego abre la dirección desde Chrome/Android o Safari/iOS y usa "Añadir a pantalla de inicio".
+
+IMPORTANTE
+Esta versión guarda el historial en el dispositivo/navegador donde se utiliza. No incluye servidor, usuarios, base de datos central ni sincronización entre celulares. Para operación multiusuario, desplegar un backend y base de datos protegida, con autenticación y copias de seguridad. El número de solicitud es un identificador generado en el dispositivo y no sustituye una numeración central transaccional.
+
+CAMPO ADICIONAL EN ESTA VERSION:
+- Destino obligatorio con 12 opciones: COCHABAMBA, LA PAZ, ORURO, POTOSI, PUERTO VILLARROEL, SAN JOSE DE CHIQUITOS, SANTA CRUZ, TARIJA, TRINIDAD, TUPIZA, UYUNI, VILLAZON.
+- El destino aparece en el comprobante PNG, historial y texto de respaldo para WhatsApp.
+
+Credito de autoria: Creado por R. Lara Jordan (visible en la interfaz y comprobante PNG).
+
+
+VERSION FUNCIONAL DEFINITIVA
+- Diseño basado en la referencia aprobada de dos pantallas: formulario y comprobante.
+- Incluye DESTINO obligatorio (12 opciones) después de Frontera.
+- Incluye el crédito "Creado por R. Lara Jordán" en la interfaz, comprobante y PNG exportado.
+- Incluye lista de 14 solicitantes y selección dinámica de 1 a 4 tractos, sin repetir placas.
+- Incluye gasolina/diésel, fecha y hora de Bolivia, frontera, planta, bandera y modalidad FCA/DAP.
+- Historial local del navegador; no hay sincronización entre dispositivos ni base de datos central.
+- Compartir imagen: usa el menú nativo de compartir si el navegador/dispositivo admite archivos; en caso contrario, guarda el PNG y adjúntalo manualmente en WhatsApp.
+- Para instalar como PWA, publicar la carpeta en un servidor HTTPS y abrirla desde el navegador del teléfono.
