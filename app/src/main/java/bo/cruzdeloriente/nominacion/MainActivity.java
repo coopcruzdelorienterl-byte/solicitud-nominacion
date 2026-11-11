@@ -138,11 +138,23 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SHARE_REQUEST_CODE && webView != null) {
-            // Al volver del selector de compartir, ofrecer iniciar una nueva nominación.
-            // El usuario confirma con el botón NUEVA SOLICITUD; no se borran datos automáticamente.
-            webView.post(() -> webView.evaluateJavascript(
-                    "if (window.onAndroidShareReturned) window.onAndroidShareReturned();", null));
+        if (requestCode == SHARE_REQUEST_CODE && !isFinishing()) {
+            // Android no informa de forma fiable si WhatsApp terminó de enviar o si el usuario canceló.
+            // Por eso se solicita confirmación explícita antes de cerrar la aplicación.
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmar envío")
+                    .setMessage("¿Confirmas que el comprobante de la solicitud fue enviado por WhatsApp? Si confirmas, la aplicación se cerrará. Para otra nominación deberás abrirla nuevamente.")
+                    .setPositiveButton("Sí, enviado", (dialog, which) -> {
+                        Toast.makeText(this, "Envío confirmado. Cerrando aplicación.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .setNegativeButton("No, regresar", (dialog, which) -> {
+                        // Mantener el formulario y comprobante intactos si no se confirmó el envío.
+                    })
+                    .setOnCancelListener(dialog -> {
+                        // Si se cierra el diálogo, no se pierde la nominación actual.
+                    })
+                    .show();
         }
     }
 
