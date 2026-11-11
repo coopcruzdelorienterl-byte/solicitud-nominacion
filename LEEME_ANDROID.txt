@@ -1,0 +1,42 @@
+PROYECTO ANDROID – SOLICITUD DE NOMINACIÓN / CRUZ DEL ORIENTE
+Versión de interfaz y funciones: V17 aprobada
+Paquete Android preparado para compilar como APK.
+
+IMPORTANTE:
+Este ZIP contiene un proyecto Android Studio completo, pero no incluye un APK ya compilado. El entorno donde se preparó no dispone de Android SDK ni de Gradle instalado, por lo que no es posible compilar y verificar aquí un APK binario. Para obtener el APK se requiere Android Studio con Android SDK 35 y JDK 17.
+
+QUÉ CONSERVA:
+- Interfaz web V17 aprobada, empaquetada localmente dentro de la app (sin depender de una página web).
+- Sello institucional y archivos de marca.
+- Formulario, listas, fecha y hora, validaciones y numeración local.
+- Comprobante PNG, con correcciones aprobadas de bandera e iconos.
+- Compartir: Android abre el menú nativo de compartir archivos, donde puede elegirse WhatsApp.
+- Descargar: guarda el PNG en Imágenes/Cruz del Oriente.
+- Las acciones Compartir/Descargar siguen apareciendo solo después de generar el comprobante.
+
+REQUISITOS PARA COMPILAR:
+- Android Studio actualizado.
+- Android SDK Platform 35 y Build Tools correspondientes.
+- JDK 17.
+- Conexión a internet durante la primera sincronización para descargar Gradle y dependencias.
+
+COMPILAR:
+1. Descomprimir este proyecto.
+2. Abrir Android Studio.
+3. Elegir Open y seleccionar la carpeta raíz CruzDelOriente_Android_APK_Project.
+4. Esperar Gradle Sync y aceptar la instalación de SDK Platform 35 si Android Studio la solicita.
+5. En Build > Build Bundle(s) / APK(s) > Build APK(s).
+6. Android Studio generará el APK de depuración en:
+   app/build/outputs/apk/debug/app-debug.apk
+7. Para una versión de distribución, usar Build > Generate Signed Bundle / APK > APK y crear/seleccionar una clave de firma.
+
+IDENTIFICADOR:
+bo.cruzdeloriente.nominacion
+Versión: 1.0.0
+Android mínimo: 10 (API 29)
+Orientación: vertical.
+
+NOTAS:
+- La numeración correlativa continúa guardándose localmente en el dispositivo. No se comparte entre teléfonos. Una numeración única institucional requiere backend/base de datos central.
+- La opción compartir usa el selector nativo Android; el usuario elige WhatsApp si está instalado.
+- Este paquete es el proyecto fuente para generar el APK. No instalar el ZIP directamente en el teléfono.
