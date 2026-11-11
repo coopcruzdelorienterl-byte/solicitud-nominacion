@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.Base64;
 
 public class MainActivity extends Activity {
+    private static final int SHARE_REQUEST_CODE = 4107;
     private WebView webView;
 
     @Override
@@ -74,7 +75,7 @@ public class MainActivity extends Activity {
                 send.putExtra(Intent.EXTRA_TEXT, "Comprobante " + safeName.replace(".png", ""));
                 send.setClipData(ClipData.newUri(getContentResolver(), "Comprobante", uri));
                 send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                runOnUiThread(() -> startActivity(Intent.createChooser(send, "Compartir comprobante")));
+                runOnUiThread(() -> startActivityForResult(Intent.createChooser(send, "Compartir comprobante"), SHARE_REQUEST_CODE));
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(MainActivity.this,
                         "No se pudo compartir la imagen: " + e.getMessage(), Toast.LENGTH_LONG).show());
@@ -108,6 +109,17 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> Toast.makeText(MainActivity.this,
                         "No se pudo guardar la imagen: " + e.getMessage(), Toast.LENGTH_LONG).show());
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SHARE_REQUEST_CODE && webView != null) {
+            // Al volver del selector de compartir, ofrecer iniciar una nueva nominación.
+            // El usuario confirma con el botón NUEVA SOLICITUD; no se borran datos automáticamente.
+            webView.post(() -> webView.evaluateJavascript(
+                    "if (window.onAndroidShareReturned) window.onAndroidShareReturned();", null));
         }
     }
 
