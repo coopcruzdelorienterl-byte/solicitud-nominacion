@@ -98,6 +98,7 @@ select:focus,input:focus{border-color:#07834a;box-shadow:0 0 0 3px #07834a20}
  .receipt-share-cue{font-size:11px;padding:9px}
 }
 @media(min-width:600px){main{padding-left:22px;padding-right:22px}.hero{margin-left:-22px;margin-right:-22px}.card-body{padding:16px 18px}.receipt{padding:26px 28px 20px}}
+.share-actions #newRequest{background:#e4f3e9;border:2px solid #087f45;color:#00552f;font-weight:900;min-height:54px;letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -165,6 +166,7 @@ select:focus,input:focus{border-color:#07834a;box-shadow:0 0 0 3px #07834a20}
  <div class="actions share-actions" id="shareActions">
   <button type="button" class="btn primary" id="share">◉ &nbsp; Compartir por WhatsApp</button>
   <button type="button" class="btn secondary" id="download">↓ &nbsp; Descargar imagen</button>
+  <button type="button" class="btn secondary" id="newRequest" style="display:none;grid-column:1/-1">＋ &nbsp; NUEVA SOLICITUD</button>
  </div>
  <div class="creator">Creado por R. Lara Jordán</div>
  <p class="small-note">Cooperativa de Transporte Nacional e Internacional · Santa Cruz - Bolivia</p>
@@ -354,9 +356,13 @@ async function makeImage(){
 }
 async function imageBlob(){const data=await makeImage();if(!data)throw new Error("Primero genera una solicitud.");return await (await fetch(data)).blob()}
 $("download").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.savePng==="function"){const data=await makeImage();window.AndroidShare.savePng(data,filename);return;}const b=await imageBlob(),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}catch(err){alert(err.message)}};
-$("share").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.sharePng==="function"){const data=await makeImage();window.AndroidShare.sharePng(data,filename);return;}const b=await imageBlob(),f=new File([b],filename,{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Solicitud de nominación",text:"Comprobante "+currentRequest.requestId});}else{await $("download").click();alert("Tu navegador no permite compartir archivos directamente. Se descargó la imagen para adjuntarla en WhatsApp.")}}catch(err){if(err.name!=="AbortError")alert("No se pudo compartir: "+err.message)}};
+function showNewRequestAfterShare(){const b=$("newRequest");if(b&&currentRequest)b.style.display="block";}
+window.onAndroidShareReturned=showNewRequestAfterShare;
+$("newRequest").onclick=()=>{if(!currentRequest)return;if(confirm("¿Ya compartiste o guardaste el comprobante? Se limpiarán los datos para iniciar una nueva solicitud. El número correlativo se conservará."))$("reset").click();};
+$("share").onclick=async()=>{try{const filename=(currentRequest?.requestId||"solicitud-nominacion")+".png";if(window.AndroidShare&&typeof window.AndroidShare.sharePng==="function"){const data=await makeImage();window.AndroidShare.sharePng(data,filename);return;}const b=await imageBlob(),f=new File([b],filename,{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Solicitud de nominación",text:"Comprobante "+currentRequest.requestId});showNewRequestAfterShare();}else{await $("download").click();alert("Tu navegador no permite compartir archivos directamente. Se descargó la imagen para adjuntarla en WhatsApp.")}}catch(err){if(err.name!=="AbortError")alert("No se pudo compartir: "+err.message)}};
 $("reset").addEventListener("click",()=>{
  const form=$("nomForm");
+ $("newRequest").style.display="none";
  form.reset();
  // Explicit reset keeps Android WebView and desktop browsers consistent.
  $("cantidad").value="1";
