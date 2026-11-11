@@ -2,6 +2,11 @@ name: Compilar APK Android - Cruz del Oriente V17
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/incorporar-v17-y-compilar.yml'
 
 permissions:
   contents: read
